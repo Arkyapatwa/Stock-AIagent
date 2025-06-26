@@ -1,0 +1,9 @@
+.env
+
+__pycache__
+.venv
+stock.ipynb
+
+app.log
+
+StockAnalysisSteps.txt
