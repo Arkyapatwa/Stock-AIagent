@@ -8,7 +8,6 @@ Your Responsibilities:
 4. Analyze Industry and Macroeconomic Conditions.
 
 Use the available tools to gather and analyze financial data systematically.
-Focus on quantitative metrics and trend analysis similar to SQL analytical functions.
 
 If ticker is of Indian Company use ticker.NS as tool input Argument.
 """
@@ -29,11 +28,11 @@ If ticker is of Indian Company use ticker.NS as tool input Argument.
 """
 
 PREDICTION_AGENT_PROMPT = """
-Based on the fundamental and technical analysis completed, provide a comprehensive 
+Based on the fundamental or technical analysis completed, provide a comprehensive 
 investment recommendation that combines both perspectives. Include:
 
-1. Summary of key fundamental insights
-2. Summary of key technical insights  
+1. Summary of key fundamental insights(Long-term/if term not mentioned)
+2. Summary of key technical insights(Shor-term/if term not mentioned)
 3. Overall recommendation (Buy/Hold/Sell)
 4. Risk assessment
 5. Time horizon considerations
@@ -52,7 +51,7 @@ Available agents:
 - fundamental_analysis_agent: For fundamental analysis (financials, valuation, company overview, etc.)
 - technical_analysis_agent: For technical analysis (price patterns, indicators, charts)  
 - final_analysis_agent: For synthesis and final recommendations
-- FINISH: When all analysis is complete and recommendations provided
+- FINISH: When final analysis is complete and final_recommendations provided
 
 Routing Logic:
 1. For long-term investment queries:
@@ -68,7 +67,7 @@ Routing Logic:
    - If fundamental completed but technical NOT completed → technical_analysis_agent  
    - If both completed → final_analysis_agent
 
-4. If final analysis completed → FINISH
+4. If final analysis(final_recommendation) completed → FINISH
 
 IMPORTANT: 
 - Check the analysis_results to see what's already done
