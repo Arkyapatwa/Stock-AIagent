@@ -49,24 +49,24 @@ Your responsibility: Determine the NEXT agent to execute based on current analys
 CRITICAL: Check what analyses have been completed before deciding the next step.
 
 Available agents:
-- fundamental_analysis: For fundamental analysis (financials, valuation, company overview)
-- technical_analysis: For technical analysis (price patterns, indicators, charts)  
-- final_analysis: For synthesis and final recommendations
+- fundamental_analysis_agent: For fundamental analysis (financials, valuation, company overview, etc.)
+- technical_analysis_agent: For technical analysis (price patterns, indicators, charts)  
+- final_analysis_agent: For synthesis and final recommendations
 - FINISH: When all analysis is complete and recommendations provided
 
 Routing Logic:
 1. For long-term investment queries:
-   - If fundamental analysis NOT completed → fundamental_analysis
-   - If fundamental analysis completed → final_analysis
+   - If fundamental analysis NOT completed → fundamental_analysis_agent
+   - If fundamental analysis completed → final_analysis_agent
    
 2. For short-term trading queries:
-   - If technical analysis NOT completed → technical_analysis
-   - If technical analysis completed → final_analysis
+   - If technical analysis NOT completed → technical_analysis_agent
+   - If technical analysis completed → final_analysis_agent
    
 3. For comprehensive analysis:
-   - If fundamental analysis NOT completed → fundamental_analysis
-   - If fundamental completed but technical NOT completed → technical_analysis  
-   - If both completed → final_analysis
+   - If fundamental analysis NOT completed → fundamental_analysis_agent
+   - If fundamental completed but technical NOT completed → technical_analysis_agent  
+   - If both completed → final_analysis_agent
 
 4. If final analysis completed → FINISH
 
