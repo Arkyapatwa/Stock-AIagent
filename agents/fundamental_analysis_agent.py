@@ -42,14 +42,19 @@ def fundamental_agent_node(state: AgentState) -> AgentState:
     response = fundamental_analysis_agent.ask_agent(state)
     logger.info(f"Fundamental Analysis Node Response: {response}")
     
-    state["analysis_results"]["fundamental"] = {
+    fundamental_result = {
         "timestamp": datetime.now().isoformat(),
         "agent": "fundamental_analysis",
         "status": "completed"
     }
+    state["next_agent"] = "supervisor"
     logger.info("Fundamental Analysis Node: Completed.")
     
     return {
         'messages': [response['messages'][-1]],
+        'analysis_results': {
+            **state.get("analysis_results", {}),  
+            "fundamental": fundamental_result      
+        },
         'next_agent': 'supervisor'
     }

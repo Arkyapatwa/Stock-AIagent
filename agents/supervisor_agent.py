@@ -6,6 +6,7 @@ from langgraph.graph import END
 from typing import List
 from utils.agent_prompts import SUPERVISOR_AGENT_PROMPT
 from models.agent_state import AgentState
+from models.structured_agent_response import SupervisorDecision
 from utils.llm_connection import LLMConnection
 import datetime
 from typing import Any
@@ -25,6 +26,7 @@ class SupervisorAgent():
             self.agent = create_react_agent(
                 model=model,
                 prompt=self.prompt.replace('Enum-Options', options),
+                response_format=SupervisorDecision,
                 tools=[]
             )
         
@@ -42,11 +44,20 @@ def supervisor_node(state: AgentState) -> AgentState:
     response = supervisor_agent.ask_agent(state)
     logger.info(f"Supervisor Node: Response: {response}")
     
-    if response['messages'][-1].content in options:
-        next_agent = response['messages'][-1].content
+    isAvailableOption = False
+    options_list = options.split(', ')
+    for option in options_list:
+        if option in response['structured_response'].next_agent:
+            isAvailableOption = True
+            break
+    
+    if isAvailableOption:
+        next_agent = response['structured_response'].next_agent
         logger.info(f"Supervisor Node: Next agent determined: {next_agent}")
     else:
         next_agent = 'FINISH'
         logger.info("Supervisor Node: No specific next agent, finishing.")
-    
-    return {'next_agent': next_agent}
+    state['next_agent'] = next_agent
+    return {
+        'next_agent': next_agent
+    }

@@ -20,7 +20,7 @@ class TechnicalAnalysisAgent():
         self.agent = None
         
     def create_agent(self, model):
-        if not self.ask_agent:
+        if not self.agent:
             logger.info("Creating Technical Analysis Agent...")
             self.agent = create_react_agent(
                 model=model,
@@ -40,14 +40,19 @@ def technical_agent_node(state: AgentState) -> AgentState:
 
     response = technical_analysis_agent.ask_agent(state)
     logger.info(f"Technical Analysis Node: Agent response: {response}")
-    
-    state["analysis_results"]["technical"] = {
+
+    techincal_result = {
         "timestamp": datetime.now().isoformat(),
         "agent": "technical_analysis",
         "status": "completed"
     }
+    state["next_agent"] = "supervisor"
     logger.info("Technical Analysis Node: Completed.")
     return {
         'messages': [response['messages'][-1]],
+        'analysis_results': {
+            **state.get("analysis_results", {}),  
+            "technical": techincal_result      
+        },
         'next_agent': 'supervisor'
     }

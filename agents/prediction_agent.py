@@ -6,6 +6,7 @@ from langchain_core.messages import HumanMessage
 from typing import List
 from utils.agent_prompts import PREDICTION_AGENT_PROMPT
 from models.agent_state import AgentState
+from models.structured_agent_response import PredictionDecision
 from utils.llm_connection import LLMConnection
 import datetime
 from typing import Any
@@ -25,6 +26,7 @@ class PredictionAgent():
             self.agent = create_react_agent(
                 model=model,
                 prompt=self.prompt,
+                response_format=PredictionDecision,
                 tools=[]
             )
         
@@ -49,12 +51,18 @@ def final_analysis_node(state: AgentState) -> AgentState:
         logger.info(f"Prediction Node Response: {prediction}")
         
         if "final_recommendation" not in state:
-            state["final_recommendation"] = ""
+            state["final_recommendation"] = {}
             
-        state["final_recommendation"] = prediction['messages'][-1].content
+        state["final_recommendation"] = {
+            "action": prediction['structured_response'].action,
+            "confidence": prediction['structured_response'].confidence,
+            "explanation": prediction['structured_response'].explanation
+        }
         logger.info("Prediction Node: Final recommendation generated.")
         
+        state['next_agent'] = 'supervisor'
         return {
+            **state,
             'messages': [prediction['messages'][-1]],
             'next_agent': 'supervisor'
         }
