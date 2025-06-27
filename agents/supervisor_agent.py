@@ -27,7 +27,8 @@ class SupervisorAgent():
                 model=model,
                 prompt=self.prompt.replace('Enum-Options', options),
                 response_format=SupervisorDecision,
-                tools=[]
+                tools=[],
+                # callbacks=[delay_execution_10]
             )
         
     def ask_agent(self, state: AgentState) -> dict[str, Any] | Any:
@@ -38,20 +39,19 @@ supervisor_agent = SupervisorAgent()
 
 def supervisor_node(state: AgentState) -> AgentState:
     logger.info("Supervisor Node: Determining next agent.")
-    options = "fundamental_analysis_agent, technical_analysis_agent, final_analysis_agent, FINISH"
+    options = "fundamental_analysis_agent,technical_analysis_agent,final_analysis_agent,FINISH"
     supervisor_agent.create_agent(llm_model, options)
+    
+    final_recommendation = state['final_recommendation']
+    if 'action' in final_recommendation:
+        return {
+            'next_agent': "FINISH"
+        }
 
     response = supervisor_agent.ask_agent(state)
     logger.info(f"Supervisor Node: Response: {response}")
     
-    isAvailableOption = False
-    options_list = options.split(', ')
-    for option in options_list:
-        if option in response['structured_response'].next_agent:
-            isAvailableOption = True
-            break
-    
-    if isAvailableOption:
+    if response['structured_response'].next_agent in options.split(","):
         next_agent = response['structured_response'].next_agent
         logger.info(f"Supervisor Node: Next agent determined: {next_agent}")
     else:

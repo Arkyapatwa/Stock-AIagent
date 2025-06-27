@@ -93,7 +93,9 @@ def run_query(query: str, config: Optional[dict] = None, session_id: Optional[st
                 "start_time": start_time.isoformat(),
                 "query": query,
                 "session_id": config.get("configurable", {}).get("thread_id")
-            }
+            },
+            "next_agent": "supervisor",
+            "final_recommendation": {}
         }
         
         result = agent_workflow.execute_workflow(initial_state, config=config)

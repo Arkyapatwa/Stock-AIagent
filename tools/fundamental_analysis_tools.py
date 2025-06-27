@@ -18,9 +18,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 @tool("get_financial_statements")
-def get_financial_statements(ticker: str) -> dict:
+def get_financial_statements(ticker: str) -> str:
     """
-    Returns a dictionary of financial statements for a given ticker.
+    Analyzes financial statements for a given ticker.
     
     Args:
         ticker: The stock ticker symbol.
@@ -36,16 +36,16 @@ def get_financial_statements(ticker: str) -> dict:
     balance_sheet = stock.balance_sheet
     cash_flow = stock.cashflow
     
-    revenue_details_for_last_3_years = "Revenue Details for the Last 3 Years: "
-    expenses_details_for_last_3_years = "Expenses Details for the Last 3 Years: "
-    net_profit_details_for_last_3_years = "Net Profit Details for the Last 3 Years: "
+    revenue_details_for_last_3_years = "Revenue Details: "
+    expenses_details_for_last_3_years = "Expenses Details: "
+    net_profit_details_for_last_3_years = "Net Profit Details: "
     
-    net_debt_details_for_last_3_years = "Net Debt Details for the Last 3 Years: "
-    total_Debt_details_for_last_3_years = "Total Debt Details for the Last 3 Years: "
-    debt_to_equity_ratio_details_for_last_3_years = "Debt-to-Equity Ratio Details for the Last 3 Years: "
+    net_debt_details_for_last_3_years = "Net Debt Details: "
+    total_Debt_details_for_last_3_years = "Total Debt Details: "
+    debt_to_equity_ratio_details_for_last_3_years = "Debt-to-Equity Ratio Details: "
     
-    free_cash_flow_details_for_last_3_years = "Free Cash Flow Details for the Last 3 Years: "
-    operating_cash_flow_details_for_last_3_years = "Operating Cash Flow Details for the Last 3 Years: "
+    free_cash_flow_details_for_last_3_years = "Free Cash Flow Details: "
+    operating_cash_flow_details_for_last_3_years = "Operating Cash Flow Details: "
     
     for year in income_statement.columns[:3]:
         # Income Statement
@@ -65,20 +65,23 @@ def get_financial_statements(ticker: str) -> dict:
         operating_cash_flow_details_for_last_3_years += f"{year}: {cash_flow.loc['Operating Cash Flow', year]}, "
     
     response = {
-        "income_statement": {
-            "revenue_details_for_last_3_years": revenue_details_for_last_3_years[:-2],
-            "expenses_details_for_last_3_years": expenses_details_for_last_3_years[:-2],
-            "net_profit_details_for_last_3_years": net_profit_details_for_last_3_years[:-2],
-            },
-        "balance_sheet": {
-            "net_debt_details_for_last_3_years": net_debt_details_for_last_3_years[:-2],
-            "total_Debt_details_for_last_3_years": total_Debt_details_for_last_3_years[:-2],
-            "debt_to_equity_ratio_details_for_last_3_years": debt_to_equity_ratio_details_for_last_3_years[:-2],
-            },
-        "cash_flow": {
-            "free_cash_flow_details_for_last_3_years": free_cash_flow_details_for_last_3_years[:-2],
-            "operating_cash_flow_details_for_last_3_years": operating_cash_flow_details_for_last_3_years[:-2],
-            },
+        "period": "Last 3 Years",
+        "data": {
+            "income_statement": {
+                "revenue_details": revenue_details_for_last_3_years[:-2],
+                "expenses_details": expenses_details_for_last_3_years[:-2],
+                "net_profit_details": net_profit_details_for_last_3_years[:-2],
+                },
+            "balance_sheet": {
+                "net_debt_details": net_debt_details_for_last_3_years[:-2],
+                "total_Debt_details": total_Debt_details_for_last_3_years[:-2],
+                "debt_to_equity_ratio_details": debt_to_equity_ratio_details_for_last_3_years[:-2],
+                },
+            "cash_flow": {
+                "free_cash_flow_details": free_cash_flow_details_for_last_3_years[:-2],
+                "operating_cash_flow_details": operating_cash_flow_details_for_last_3_years[:-2],
+                },
+        }
     }
     
     system_instruction = f"Analyse the Financial Statements for {ticker} and give a summarized analysis of the company's financial performance in the last 3 years. \n\n"
@@ -101,9 +104,9 @@ def get_financial_statements(ticker: str) -> dict:
     
     
 @tool("get_valuation_ratios")
-def get_valuation_ratios(ticker: str) -> dict:
+def get_valuation_ratios(ticker: str) -> str:
     """
-    Returns a dictionary of valuation ratios for a given ticker.
+    Analyzes valuation ratios for a given ticker.
     
     Args:
         ticker: The stock ticker symbol.
@@ -148,7 +151,7 @@ def get_valuation_ratios(ticker: str) -> dict:
 @tool("get_company_overview")
 def get_management_and_business_details(ticker: str) -> str:
     """
-    Returns a string of management and business details for a given ticker.
+    Understand and Analyze management and business details for a given ticker.
 
     Args:
         ticker: The stock ticker symbol.
@@ -194,7 +197,7 @@ def get_management_and_business_details(ticker: str) -> str:
 @tool("get_industry_analysis")
 def get_industry_analysis(ticker: str) -> str:
     """
-    Returns a string of industry analysis for a given ticker.
+    Analyze industry analysis for a given ticker.
 
     Args:
         ticker: The stock ticker symbol.
@@ -239,7 +242,7 @@ def get_industry_analysis(ticker: str) -> str:
 @tool("get_macroeconomic_conditions")
 def get_macroeconomic_conditions(ticker: str) -> str:
     """
-    Returns a string of global macroeconomic conditions for a given ticker.
+    Analyze global/country specific macroeconomic conditions for a given ticker.
     
     Args:
         ticker: The stock ticker symbol.
