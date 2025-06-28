@@ -33,15 +33,15 @@ class LLMConnection:
                             model=LLM_MODEL,
                             base_url=MODEL_ENDPOINT,
                             temperature=0,
-                            top_p=0.2,
+                            top_p=1,
                             max_retries=2
                         )
                     else:
+                        print("gemini")
                         cls._instance.llm = ChatGoogleGenerativeAI(
                             model=GEMINI_MODEL,
                             temperature=0,
-                            top_p=0.2,
-                            # callbacks=[delay_execution_10], # retries after seconds
+                            top_p=1,
                             max_retries=2
                         )
 

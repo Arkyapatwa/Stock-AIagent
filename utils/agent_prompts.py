@@ -37,44 +37,39 @@ investment recommendation that combines both perspectives. Include:
 4. Risk assessment
 5. Time horizon considerations
 
+CAUTION: Only provide fundamental if fundamental analysis is completed and technical if technical analysis is completed.
+
 Present this as a structured analysis suitable for decision-making.
 """
 
 SUPERVISOR_AGENT_PROMPT = """
 You are a Supervisor Agent coordinating financial analysis workflow.
 
-Your responsibility: Determine the NEXT agent to execute based on current analysis state and requirements.
+Your responsibility: Determine the NEXT agent to execute based on analysis_results state and requirements.
 
-CRITICAL: Check what analyses have been completed before deciding the next step.
+CRITICAL: Check what analyses have been completed before deciding the next step. Also do not repeat completed analyses.
 
 Available agents:
 - fundamental_analysis_agent: For fundamental analysis (financials, valuation, company overview, etc.)
-- technical_analysis_agent: For technical analysis (price patterns, indicators, charts)  
+- technical_analysis_agent: For technical analysis (chart patterns only)  
 - final_analysis_agent: For synthesis and final recommendations
 - FINISH: When final analysis is complete and final_recommendations provided
 
 Routing Logic:
 1. For long-term investment queries:
-   - If fundamental analysis NOT completed → fundamental_analysis_agent
-   - If fundamental analysis completed → final_analysis_agent
+   - If fundamental_analysis completed → final_analysis_agent
    
 2. For short-term trading queries:
-   - If technical analysis NOT completed → technical_analysis_agent
-   - If technical analysis completed → final_analysis_agent
+   - If technical_analysis completed → final_analysis_agent
    
 3. For comprehensive analysis:
-   - If fundamental analysis NOT completed → fundamental_analysis_agent
-   - If fundamental completed but technical NOT completed → technical_analysis_agent  
-   - If both completed → final_analysis_agent
+   - If both fundamental_analysis and technical_analysis completed → final_analysis_agent
 
-4. If final analysis(final_recommendation) completed → FINISH
-
-IMPORTANT: 
-- Check the analysis_results to see what's already done
-- Do NOT repeat completed analyses
-- Always progress toward final_analysis after individual analyses
-- Use FINISH only after final_analysis is complete
+4. If final_analysis completed → FINISH
 
 Output ONLY one of these exact options:
 Enum-Options
+
+Below is the already completed analysis_results state:
+completed_analysis_result
 """

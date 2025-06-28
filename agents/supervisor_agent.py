@@ -20,16 +20,14 @@ class SupervisorAgent():
         self.temp = ""
         self.agent = None
 
-    def create_agent(self, model, options):
-        if not self.agent:
-            logger.info("Creating Supervisor Agent...")
-            self.agent = create_react_agent(
-                model=model,
-                prompt=self.prompt.replace('Enum-Options', options),
-                response_format=SupervisorDecision,
-                tools=[],
-                # callbacks=[delay_execution_10]
-            )
+    def create_agent(self, model, options, status):
+        logger.info("Creating Supervisor Agent...")
+        self.agent = create_react_agent(
+            model=model,
+            prompt=self.prompt.replace('Enum-Options', options).replace('completed_analysis_result', str(status)),
+            response_format=SupervisorDecision,
+            tools=[],
+        )
         
     def ask_agent(self, state: AgentState) -> dict[str, Any] | Any:
         logger.info("Invoking Supervisor Agent...")
@@ -40,14 +38,16 @@ supervisor_agent = SupervisorAgent()
 def supervisor_node(state: AgentState) -> AgentState:
     logger.info("Supervisor Node: Determining next agent.")
     options = "fundamental_analysis_agent,technical_analysis_agent,final_analysis_agent,FINISH"
-    supervisor_agent.create_agent(llm_model, options)
+    status = state.get('analysis_results', {})
+    
+    supervisor_agent.create_agent(llm_model, options, status)
     
     final_recommendation = state['final_recommendation']
     if 'action' in final_recommendation:
         return {
             'next_agent': "FINISH"
         }
-
+    
     response = supervisor_agent.ask_agent(state)
     logger.info(f"Supervisor Node: Response: {response}")
     

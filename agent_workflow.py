@@ -39,14 +39,13 @@ class AgentWorkflow():
                 "fundamental_analysis": "fundamental_analysis",
                 "technical_analysis": "technical_analysis", 
                 "final_analysis": "final_analysis",
-                END: END
+                "FINISH": END
             }
         )
         
         self.workflow.add_edge("fundamental_analysis", "supervisor")
         self.workflow.add_edge("technical_analysis", "supervisor")
         self.workflow.add_edge("final_analysis", "supervisor")
-        self.workflow.add_edge("supervisor", END)
         
         self.compiled_workflow = self.workflow.compile(checkpointer=self.memory)
     
@@ -64,7 +63,7 @@ class AgentWorkflow():
         elif "final_analysis_agent" in next_agent:
             return "final_analysis"
         else:
-            return END
+            return "FINISH"
         
         
 agent_workflow = AgentWorkflow(InMemorySaver())
