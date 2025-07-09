@@ -9,7 +9,7 @@ from models.agent_state import AgentState
 
 from typing import Optional
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, AsyncGenerator
 from langchain_core.messages import HumanMessage
 import logging
 
@@ -51,6 +51,25 @@ class AgentWorkflow():
     
     def execute_workflow(self, state: AgentState, config):
         return self.compiled_workflow.invoke(state, config=config)
+    
+    async def execute_workflow_streaming(
+        self, 
+        state: AgentState, 
+        config: dict
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Execute workflow with streaming using astream"""
+        
+        try:
+            async for chunk in self.compiled_workflow.astream(state, config=config, stream_mode="values"):
+                yield chunk
+                
+        except Exception as e:
+            logger.error(f"Streaming workflow error: {str(e)}")
+            yield {
+                "error": str(e),
+                "timestamp": datetime.now().isoformat(),
+                "type": "error"
+            }
         
     def route_next_agent(self, state: AgentState):
         """Route to next agent based on supervisor decision"""
@@ -68,48 +87,3 @@ class AgentWorkflow():
         
 agent_workflow = AgentWorkflow(InMemorySaver())
 agent_workflow.create_workflow()
-
-
-    
-def run_query(query: str, config: Optional[dict] = None, session_id: Optional[str] = None) -> dict:
-    """Execute the agent workflow"""
-
-    start_time = datetime.now()
-        
-    # Generate config if not provided
-    if config is None:
-        thread_id = session_id or f"session_{start_time.strftime('%Y%m%d_%H%M%S')}"
-        config = {"configurable": {"thread_id": thread_id}}
-    
-    logger.info(f"Starting financial analysis: {query}")
-    
-    try:
-        # Initialize state
-        initial_state = {
-            "messages": [HumanMessage(content=query)],
-            "analysis_results": {},
-            "metadata": {
-                "start_time": start_time.isoformat(),
-                "query": query,
-                "session_id": config.get("configurable", {}).get("thread_id")
-            },
-            "next_agent": "supervisor",
-            "final_recommendation": {}
-        }
-        
-        result = agent_workflow.execute_workflow(initial_state, config=config)
-
-        execution_time = (datetime.now() - start_time).total_seconds()
-        
-        return {
-                "final_recommendation": result.get("final_recommendation"),
-                "analysis_results": result.get("analysis_results"),
-                "messages": [msg.content for msg in result.get("messages", [])],
-                "metadata": {
-                    **result.get("metadata", {}),
-                    "execution_time": execution_time,
-                    "end_time": datetime.now().isoformat()
-                }
-            }
-    except Exception as e:
-        return {"error": str(e)}
